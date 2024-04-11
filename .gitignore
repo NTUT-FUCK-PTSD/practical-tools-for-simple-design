@@ -7,8 +7,10 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # Ignore .DS_Store file from a git repository
-
 .DS_Store
+
+# lib of PTSD
+3rdparty/
 
 # User-specific stuff
 .idea/**/workspace.xml

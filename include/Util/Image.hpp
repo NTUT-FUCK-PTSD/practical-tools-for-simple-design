@@ -61,6 +61,23 @@ public:
      */
     void Draw(const Core::Matrices &data) override;
 
+    /**
+     * @brief Get the SDL_Surface that current draw.
+     *
+     * This function return the SDL_Surface that current draw.
+     *
+     */
+    SDL_Surface &GetSDLSurface() const { return *m_Surface.get(); }
+    /**
+     * @brief Update TextureDate by SDL_Surface
+     *
+     * This function Update TextureDate by SDL_Surface.
+     *
+     */
+    void UpdateTextureData(const SDL_Surface &surface);
+
+    void SetAlpha(const Uint8 alpha);
+
 private:
     void InitProgram();
     void InitVertexArray();
@@ -76,6 +93,7 @@ private:
 
 private:
     std::unique_ptr<Core::Texture> m_Texture = nullptr;
+    std::shared_ptr<SDL_Surface> m_Surface;
 
     std::string m_Path;
     glm::vec2 m_Size;

@@ -38,20 +38,20 @@ Image::Image(const std::string &filepath)
     m_UniformBuffer = std::make_unique<Core::UniformBuffer<Core::Matrices>>(
         *s_Program, "Matrices", 0);
 
-    auto surface = s_Store.Get(filepath);
+    m_Surface = s_Store.Get(filepath);
 
     m_Texture = std::make_unique<Core::Texture>(
-        Core::SdlFormatToGlFormat(surface->format->format), surface->w,
-        surface->h, surface->pixels);
-    m_Size = {surface->w, surface->h};
+        Core::SdlFormatToGlFormat(m_Surface->format->format), m_Surface->w,
+        m_Surface->h, m_Surface->pixels);
+    m_Size = {m_Surface->w, m_Surface->h};
 }
 
 void Image::SetImage(const std::string &filepath) {
-    auto surface = s_Store.Get(filepath);
+    m_Surface = s_Store.Get(filepath);
 
-    m_Texture->UpdateData(Core::SdlFormatToGlFormat(surface->format->format),
-                          surface->w, surface->h, surface->pixels);
-    m_Size = {surface->w, surface->h};
+    m_Texture->UpdateData(Core::SdlFormatToGlFormat(m_Surface->format->format),
+                          m_Surface->w, m_Surface->h, m_Surface->pixels);
+    m_Size = {m_Surface->w, m_Surface->h};
 }
 
 void Image::Draw(const Core::Matrices &data) {
@@ -67,8 +67,9 @@ void Image::Draw(const Core::Matrices &data) {
 
 void Image::InitProgram() {
     // TODO: Create `BaseProgram` from `Program` and pass it into `Drawable`
-    s_Program = std::make_unique<Core::Program>("../assets/shaders/Base.vert",
-                                                "../assets/shaders/Base.frag");
+    s_Program =
+        std::make_unique<Core::Program>(PTSD_DIR "/assets/shaders/Base.vert",
+                                        PTSD_DIR "/assets/shaders/Base.frag");
     s_Program->Bind();
 
     GLint location = glGetUniformLocation(s_Program->GetId(), "surface");
@@ -109,6 +110,33 @@ void Image::InitVertexArray() {
             0, 2, 3, //
         }));
     // NOLINTEND
+}
+
+void Image::UpdateTextureData(const SDL_Surface &surface) {
+    m_Texture->UpdateData(Core::SdlFormatToGlFormat(surface.format->format),
+                          surface.w, surface.h, surface.pixels);
+    m_Size = {surface.w, surface.h};
+}
+
+void Image::SetAlpha(const Uint8 alpha) {
+    auto OriginalBlendMode = SDL_BlendMode::SDL_BLENDMODE_BLEND;
+    SDL_SetSurfaceAlphaMod(m_Surface.get(), alpha);
+    SDL_GetSurfaceBlendMode(m_Surface.get(), &OriginalBlendMode);
+    SDL_SetSurfaceBlendMode(m_Surface.get(), SDL_BLENDMODE_BLEND);
+
+    auto targetSurface =
+        std::unique_ptr<SDL_Surface, std::function<void(SDL_Surface *)>>{
+            SDL_CreateRGBSurfaceWithFormat(0, m_Surface->w, m_Surface->h,
+                                           m_Surface->format->BitsPerPixel,
+                                           m_Surface->format->format),
+            SDL_FreeSurface,
+        };
+    SDL_BlitSurface(m_Surface.get(), NULL, targetSurface.get(), NULL);
+    m_Texture->UpdateData(
+        Core::SdlFormatToGlFormat(targetSurface->format->format),
+        targetSurface->w, targetSurface->h, targetSurface->pixels);
+    SDL_SetSurfaceAlphaMod(m_Surface.get(), 255);
+    SDL_SetSurfaceBlendMode(m_Surface.get(), OriginalBlendMode);
 }
 
 std::unique_ptr<Core::Program> Image::s_Program = nullptr;

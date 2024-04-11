@@ -24,7 +24,7 @@ endif()
 
 option(PTSD_ENABLE_PCH "Turn on PCH to increase compilation speed" OFF)
 
-include(cmake/Dependencies.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Dependencies.cmake)
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(SRC_FILES
@@ -42,8 +42,8 @@ set(SRC_FILES
     ${SRC_DIR}/Util/Logger.cpp
     ${SRC_DIR}/Util/Time.cpp
     ${SRC_DIR}/Util/Input.cpp
-    ${SRC_DIR}/Util/SFX.cpp
-    ${SRC_DIR}/Util/BGM.cpp
+    # ${SRC_DIR}/Util/SFX.cpp
+    # ${SRC_DIR}/Util/BGM.cpp
     ${SRC_DIR}/Util/Image.cpp
     ${SRC_DIR}/Util/Text.cpp
     ${SRC_DIR}/Util/TransformUtils.cpp
@@ -52,6 +52,9 @@ set(SRC_FILES
     ${SRC_DIR}/Util/Color.cpp
     ${SRC_DIR}/Util/Animation.cpp
     ${SRC_DIR}/Util/MissingTexture.cpp
+
+    ${SRC_DIR}/Util/Root.cpp
+    ${SRC_DIR}/Util/SpriteSheet.cpp
 )
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(INCLUDE_FILES
@@ -76,8 +79,8 @@ set(INCLUDE_FILES
     ${INCLUDE_DIR}/Util/Time.hpp
     ${INCLUDE_DIR}/Util/Input.hpp
     ${INCLUDE_DIR}/Util/Keycode.hpp
-    ${INCLUDE_DIR}/Util/SFX.hpp
-    ${INCLUDE_DIR}/Util/BGM.hpp
+    # ${INCLUDE_DIR}/Util/SFX.hpp
+    # ${INCLUDE_DIR}/Util/BGM.hpp
     ${INCLUDE_DIR}/Util/Image.hpp
     ${INCLUDE_DIR}/Util/Text.hpp
     ${INCLUDE_DIR}/Util/Transform.hpp
@@ -97,95 +100,52 @@ set(EXAMPLE_FILES
     ${EXAMPLE_DIR}/src/Cat.cpp
     ${EXAMPLE_DIR}/src/main.cpp
 
-    ${EXAMPLE_DIR}/include/App.hpp
-    ${EXAMPLE_DIR}/include/Giraffe.hpp
-    ${EXAMPLE_DIR}/include/GiraffeText.hpp
-    ${EXAMPLE_DIR}/include/Cat.hpp
-)
-set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
-set(TEST_FILES
-    ${TEST_DIR}/SimpleTest.cpp
-    ${TEST_DIR}/NotSimpleTest.cpp
-    ${TEST_DIR}/TransformTest.cpp
+    ${INCLUDE_DIR}/Util/AssetStore.hpp
+    ${INCLUDE_DIR}/Util/AssetStore.inl
+    ${INCLUDE_DIR}/Util/Root.hpp
+    ${INCLUDE_DIR}/Util/MissingTexture.hpp
+    ${INCLUDE_DIR}/Util/SpriteSheet.hpp
+    
+    ${INCLUDE_DIR}/config.hpp
 )
 
-add_library(PTSD STATIC
+add_library(${PROJECT_NAME}
     ${SRC_FILES}
-    ${INCLUDE_FILES}
 )
-target_link_libraries(PTSD
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+        PTSD_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    file(COPY assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+        PTSD_DIR=".."
+    )
+else ()
+    message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+endif()
+
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
+    ${DEPENDENCY_INCLUDE_DIRS}
+)
+target_link_libraries(${PROJECT_NAME}
     SDL2::SDL2main # IDK what happens if we don't link SDL2main
     ${DEPENDENCY_LINK_LIBRARIES}
 )
-target_include_directories(PTSD SYSTEM PRIVATE
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
     ${DEPENDENCY_INCLUDE_DIRS}
 )
-target_include_directories(PTSD PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
     ${INCLUDE_DIR}
 )
-if (${PTSD_ENABLE_PCH})
-    target_precompile_headers(PTSD PRIVATE
+if(${PTSD_ENABLE_PCH})
+    target_precompile_headers(${PROJECT_NAME} PRIVATE
         include/pch.hpp
     )
 endif()
 
-target_compile_options(PTSD PRIVATE
+target_compile_options(${PROJECT_NAME} PRIVATE
     ${TARGET_COMPILE_OPTIONS}
 )
 
-add_executable(Example EXCLUDE_FROM_ALL
-    ${EXAMPLE_FILES}
-)
-target_link_libraries(Example
-    PTSD
-)
-target_include_directories(Example SYSTEM PRIVATE
-    ${INCLUDE_DIR}
-    ${DEPENDENCY_INCLUDE_DIRS}
-)
-target_include_directories(Example PRIVATE
-    ${EXAMPLE_DIR}/include
-)
-
-target_compile_definitions(Example PRIVATE ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets")
-
-enable_testing()
-
-add_executable(Tests EXCLUDE_FROM_ALL
-    ${TEST_FILES}
-    ${SRC_FILES}
-)
-target_link_libraries(Tests
-    PTSD
-    GTest::gtest_main
-)
-target_include_directories(Tests SYSTEM PRIVATE
-    ${INCLUDE_DIR}
-    ${DEPENDENCY_INCLUDE_DIRS}
-    lib/googletest/googletest/include
-    lib/googletest/googlemock/include
-)
-target_compile_options(Tests PRIVATE
-    ${TARGET_COMPILE_OPTIONS}
-)
-
-add_executable(AudioTest EXCLUDE_FROM_ALL
-    ${TEST_DIR}/Interactive/Audio.cpp
-    ${SRC_FILES}
-)
-target_link_libraries(AudioTest
-    PTSD
-    GTest::gtest_main
-)
-target_include_directories(AudioTest SYSTEM PRIVATE
-    ${INCLUDE_DIR}
-    ${DEPENDENCY_INCLUDE_DIRS}
-    lib/googletest/googletest/include
-    lib/googletest/googlemock/include
-)
-target_compile_options(AudioTest PRIVATE
-    ${TARGET_COMPILE_OPTIONS}
-)
-
-include(GoogleTest)
-gtest_discover_tests(Tests)
