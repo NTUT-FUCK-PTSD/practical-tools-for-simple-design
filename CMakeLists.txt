@@ -4,13 +4,18 @@ project(PracticalToolsForSimpleDesign)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+get_directory_property(hasParent PARENT_DIRECTORY)
+
 if (MSVC)
     set(TARGET_COMPILE_OPTIONS
         /W4
     )
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/build)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/build)
+    if (NOT hasParent)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/build)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/build)
+    endif()
 else()
     set(TARGET_COMPILE_OPTIONS
         -Wall -Wextra -pedantic
@@ -126,7 +131,7 @@ elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     ASSETS_DIR="../assets"
     )
 else ()
-    message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+    message(FATAL_ERROR "Unknown build type: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
