@@ -116,7 +116,18 @@ add_library(${PROJECT_NAME}
     ${INCLUDE_FILES}
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+    ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets"
+    )
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    file(COPY assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+    ASSETS_DIR="../assets"
+    )
+else ()
+    message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
     ${DEPENDENCY_INCLUDE_DIRS}
