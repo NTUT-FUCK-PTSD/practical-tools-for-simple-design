@@ -128,7 +128,7 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     file(COPY assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     target_compile_definitions(${PROJECT_NAME} PRIVATE
-    ASSETS_DIR="../assets"
+    ASSETS_DIR="./assets"
     )
 else ()
     message(FATAL_ERROR "Unknown build type: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
