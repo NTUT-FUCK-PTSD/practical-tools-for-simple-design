@@ -67,9 +67,8 @@ void Image::Draw(const Core::Matrices &data) {
 
 void Image::InitProgram() {
     // TODO: Create `BaseProgram` from `Program` and pass it into `Drawable`
-    s_Program =
-        std::make_unique<Core::Program>(PTSD_DIR "/assets/shaders/Base.vert",
-                                        PTSD_DIR "/assets/shaders/Base.frag");
+    s_Program = std::make_unique<Core::Program>(
+        ASSETS_DIR "/shaders/Base.vert", ASSETS_DIR "/shaders/Base.frag");
     s_Program->Bind();
 
     GLint location = glGetUniformLocation(s_Program->GetId(), "surface");

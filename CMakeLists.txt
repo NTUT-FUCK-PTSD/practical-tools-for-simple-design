@@ -58,7 +58,6 @@ set(SRC_FILES
 )
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(INCLUDE_FILES
-    ${INCLUDE_DIR}/pch.hpp
     ${INCLUDE_DIR}/config.hpp
 
     ${INCLUDE_DIR}/Core/Context.hpp
@@ -100,31 +99,24 @@ set(EXAMPLE_FILES
     ${EXAMPLE_DIR}/src/Cat.cpp
     ${EXAMPLE_DIR}/src/main.cpp
 
-    ${INCLUDE_DIR}/Util/AssetStore.hpp
-    ${INCLUDE_DIR}/Util/AssetStore.inl
-    ${INCLUDE_DIR}/Util/Root.hpp
-    ${INCLUDE_DIR}/Util/MissingTexture.hpp
-    ${INCLUDE_DIR}/Util/SpriteSheet.hpp
-    
-    ${INCLUDE_DIR}/config.hpp
+    ${EXAMPLE_DIR}/include/App.hpp
+    ${EXAMPLE_DIR}/include/Giraffe.hpp
+    ${EXAMPLE_DIR}/include/GiraffeText.hpp
+    ${EXAMPLE_DIR}/include/Cat.hpp
+)
+set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
+set(TEST_FILES
+    ${TEST_DIR}/SimpleTest.cpp
+    ${TEST_DIR}/NotSimpleTest.cpp
+    ${TEST_DIR}/TransformTest.cpp
 )
 
 add_library(${PROJECT_NAME}
     ${SRC_FILES}
+    ${INCLUDE_FILES}
 )
 
-if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-        PTSD_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
-    )
-elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    file(COPY assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-        PTSD_DIR=".."
-    )
-else ()
-    message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
-endif()
+target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
     ${DEPENDENCY_INCLUDE_DIRS}
@@ -149,3 +141,60 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     ${TARGET_COMPILE_OPTIONS}
 )
 
+add_executable(Example EXCLUDE_FROM_ALL
+    ${EXAMPLE_FILES}
+)
+target_link_libraries(Example
+    SDL2::SDL2main # IDK what happens if we don't link SDL2main
+    ${PROJECT_NAME}
+)
+target_include_directories(Example SYSTEM PRIVATE
+    ${INCLUDE_DIR}
+    ${DEPENDENCY_INCLUDE_DIRS}
+)
+target_include_directories(Example PRIVATE
+    ${EXAMPLE_DIR}/include
+)
+
+target_compile_definitions(Example PRIVATE ASSETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets")
+
+enable_testing()
+
+add_executable(Tests EXCLUDE_FROM_ALL
+    ${TEST_FILES}
+    ${SRC_FILES}
+)
+target_link_libraries(Tests
+    ${PROJECT_NAME}
+    GTest::gtest_main
+)
+target_include_directories(Tests SYSTEM PRIVATE
+    ${INCLUDE_DIR}
+    ${DEPENDENCY_INCLUDE_DIRS}
+    lib/googletest/googletest/include
+    lib/googletest/googlemock/include
+)
+target_compile_options(Tests PRIVATE
+    ${TARGET_COMPILE_OPTIONS}
+)
+
+add_executable(AudioTest EXCLUDE_FROM_ALL
+    ${TEST_DIR}/Interactive/Audio.cpp
+    ${SRC_FILES}
+)
+target_link_libraries(AudioTest
+    ${PROJECT_NAME}
+    GTest::gtest_main
+)
+target_include_directories(AudioTest SYSTEM PRIVATE
+    ${INCLUDE_DIR}
+    ${DEPENDENCY_INCLUDE_DIRS}
+    lib/googletest/googletest/include
+    lib/googletest/googlemock/include
+)
+target_compile_options(AudioTest PRIVATE
+    ${TARGET_COMPILE_OPTIONS}
+)
+
+include(GoogleTest)
+gtest_discover_tests(Tests)
