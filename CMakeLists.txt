@@ -30,6 +30,7 @@ endif()
 option(PTSD_ENABLE_PCH "Turn on PCH to increase compilation speed" OFF)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Dependencies.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Dependencies.cmake)
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(SRC_FILES
@@ -147,8 +148,8 @@ target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${INCLUDE_DIR}
 )
-if(${PTSD_ENABLE_PCH})
-    target_precompile_headers(${PROJECT_NAME} PRIVATE
+if (${PTSD_ENABLE_PCH})
+    target_precompile_headers(PTSD PRIVATE
         include/pch.hpp
     )
 endif()
@@ -156,6 +157,8 @@ endif()
 target_compile_options(${PROJECT_NAME} PRIVATE
     ${TARGET_COMPILE_OPTIONS}
 )
+set(DEPENDENCY_INCLUDE_DIRS ${DEPENDENCY_INCLUDE_DIRS} PARENT_SCOPE)
+set(DEPENDENCY_LINK_LIBRARIES ${DEPENDENCY_LINK_LIBRARIES} PARENT_SCOPE)
 
 add_executable(Example EXCLUDE_FROM_ALL
     ${EXAMPLE_FILES}
