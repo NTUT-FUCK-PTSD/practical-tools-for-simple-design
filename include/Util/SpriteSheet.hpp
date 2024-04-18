@@ -49,11 +49,13 @@ public:
 
     void SetAlpha(const Uint8 alpha);
 
+    void SetColorMod(const SDL_Color color);
+
 private:
     std::unique_ptr<Image> m_Image;
     SDL_Rect m_OriginRect;
     SDL_Rect m_DisplayRect;
-    Uint8 m_Alpha = 255;
+    SDL_Color m_ColorMod = {255, 255, 255, 255};
 };
 
 } // namespace Util

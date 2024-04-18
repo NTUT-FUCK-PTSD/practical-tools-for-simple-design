@@ -45,7 +45,9 @@ void SpriteSheet::SetDrawRect(const SDL_Rect displayRect) {
 
     auto OriginalBlendMode = SDL_BlendMode::SDL_BLENDMODE_BLEND;
     SDL_GetSurfaceBlendMode(&originSDLSurface, &OriginalBlendMode);
-    SDL_SetSurfaceAlphaMod(&originSDLSurface, m_Alpha);
+    SDL_SetSurfaceAlphaMod(&originSDLSurface, m_ColorMod.a);
+    SDL_SetSurfaceColorMod(&originSDLSurface, m_ColorMod.r, m_ColorMod.g,
+                           m_ColorMod.b);
     SDL_SetSurfaceBlendMode(&originSDLSurface,
                             SDL_BlendMode::SDL_BLENDMODE_NONE);
 
@@ -62,6 +64,7 @@ void SpriteSheet::SetDrawRect(const SDL_Rect displayRect) {
                                      targetSurface.get(), NULL);
 
     SDL_SetSurfaceAlphaMod(&originSDLSurface, 255);
+    SDL_SetSurfaceColorMod(&originSDLSurface, 255, 255, 255);
     SDL_SetSurfaceBlendMode(&originSDLSurface, OriginalBlendMode);
 
     if (isCopyWork != 0) {
@@ -74,7 +77,14 @@ void SpriteSheet::SetDrawRect(const SDL_Rect displayRect) {
 }
 
 void SpriteSheet::SetAlpha(const Uint8 alpha) {
-    m_Alpha = alpha;
+    m_ColorMod.a = alpha;
+    SetDrawRect(m_DisplayRect);
+}
+
+void SpriteSheet::SetColorMod(const SDL_Color color) {
+    SDL_SetSurfaceColorMod(&m_Image->GetSDLSurface(), color.r, color.g,
+                           color.b);
+    m_ColorMod = color;
     SetDrawRect(m_DisplayRect);
 }
 
