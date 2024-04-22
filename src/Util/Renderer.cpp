@@ -23,6 +23,10 @@ void Renderer::AddChildren(
     m_Children.insert(m_Children.end(), children.begin(), children.end());
 }
 
+void Renderer::ClearChildren() {
+    m_Children.clear();
+}
+
 void Renderer::Update(glm::vec2 translation) {
     struct StackInfo {
         std::shared_ptr<GameObject> m_GameObject;
