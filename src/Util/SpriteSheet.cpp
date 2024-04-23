@@ -77,13 +77,18 @@ void SpriteSheet::SetDrawRect(const SDL_Rect displayRect) {
 }
 
 void SpriteSheet::SetAlpha(const Uint8 alpha) {
+    if (alpha == m_ColorMod.a) {
+        return;
+    }
     m_ColorMod.a = alpha;
     SetDrawRect(m_DisplayRect);
 }
 
 void SpriteSheet::SetColorMod(const SDL_Color color) {
-    SDL_SetSurfaceColorMod(&m_Image->GetSDLSurface(), color.r, color.g,
-                           color.b);
+    if (color.r == m_ColorMod.r && color.g == m_ColorMod.g &&
+        color.b == m_ColorMod.b && color.a == m_ColorMod.a) {
+        return;
+    }
     m_ColorMod = color;
     SetDrawRect(m_DisplayRect);
 }

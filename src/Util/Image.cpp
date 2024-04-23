@@ -118,6 +118,9 @@ void Image::UpdateTextureData(const SDL_Surface &surface) {
 }
 
 void Image::SetAlpha(const Uint8 alpha) {
+    if (alpha == m_Alpha) {
+        return;
+    }
     auto OriginalBlendMode = SDL_BlendMode::SDL_BLENDMODE_BLEND;
     SDL_SetSurfaceAlphaMod(m_Surface.get(), alpha);
     SDL_GetSurfaceBlendMode(m_Surface.get(), &OriginalBlendMode);
