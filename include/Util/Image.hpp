@@ -97,6 +97,7 @@ private:
 
     std::string m_Path;
     glm::vec2 m_Size;
+    Uint8 m_Alpha = 255;
 };
 } // namespace Util
 
