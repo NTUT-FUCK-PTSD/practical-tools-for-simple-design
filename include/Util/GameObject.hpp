@@ -88,7 +88,9 @@ public:
      * @return vec2(x, y) representing the size of the drawable component.
      */
     glm::vec2 GetScaledSize() const {
-        return m_Drawable->GetSize() * m_Transform.scale;
+        if (m_Drawable) {
+            return m_Drawable->GetSize() * m_Transform.scale;
+        }
     };
 
     /**
