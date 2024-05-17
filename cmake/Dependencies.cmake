@@ -66,7 +66,7 @@ FetchContent_Declare(
 
     URL         https://github.com/ocornut/imgui/archive/refs/tags/v1.90.4-docking.zip
     URL_HASH    MD5=384084df566474aec3729df4ea30b937
-    SOURCE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui
+    SOURCE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui
 )
 
 FetchContent_Declare(
@@ -136,6 +136,7 @@ if (NOT ${imgui_POPULATED})
         ${IMGUI_INCLUDE_DIR}
     )
 endif()
+
 
 
 set(DEPENDENCY_LINK_LIBRARIES

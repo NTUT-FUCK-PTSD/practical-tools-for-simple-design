@@ -9,7 +9,6 @@
 #include "Util/Time.hpp"
 
 #include "config.hpp"
-
 using Util::ms_t;
 
 namespace Core {

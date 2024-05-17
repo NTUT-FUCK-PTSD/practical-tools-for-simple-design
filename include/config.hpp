@@ -7,7 +7,6 @@
 namespace Core {
 class Context;
 }
-
 // clang-format off
 /**
     * To use, place a config.json file either in the current directory (.) or

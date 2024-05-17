@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 get_directory_property(hasParent PARENT_DIRECTORY)
 
+
 if (MSVC)
     set(TARGET_COMPILE_OPTIONS
         /W4
