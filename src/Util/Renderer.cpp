@@ -3,6 +3,7 @@
 #include <queue>
 
 #include "Util/Logger.hpp"
+#include "config.hpp"
 
 namespace Util {
 Renderer::Renderer(const std::vector<std::shared_ptr<GameObject>> &children)
@@ -62,9 +63,21 @@ void Renderer::Update(glm::vec2 translation) {
         auto curr = renderQueue.top();
         renderQueue.pop();
 
-        curr.m_GameObject->m_Transform.translation += translation;
-        curr.m_GameObject->Draw();
-        curr.m_GameObject->m_Transform.translation -= translation;
+        auto transform = curr.m_GameObject->m_Transform;
+        transform.translation += translation;
+        auto scaledSize = curr.m_GameObject->GetScaledSize() / 2.0f;
+        // check if object is out of screen
+        if (transform.translation.x - scaledSize.x >
+                (PTSD_Config::WINDOW_WIDTH >> 1) ||
+            transform.translation.x + scaledSize.x <
+                -static_cast<int>(PTSD_Config::WINDOW_WIDTH >> 1) ||
+            transform.translation.y - scaledSize.y >
+                (PTSD_Config::WINDOW_HEIGHT >> 1) ||
+            transform.translation.y + scaledSize.y <
+                -static_cast<int>(PTSD_Config::WINDOW_HEIGHT >> 1)) {
+            continue;
+        }
+        curr.m_GameObject->Draw(transform);
     }
 }
 } // namespace Util
