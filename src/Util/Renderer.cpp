@@ -63,21 +63,29 @@ void Renderer::Update(glm::vec2 translation) {
         auto curr = renderQueue.top();
         renderQueue.pop();
 
-        auto transform = curr.m_GameObject->m_Transform;
-        transform.translation += translation;
-        auto scaledSize = curr.m_GameObject->GetScaledSize() / 2.0f;
-        // check if object is out of screen
-        if (transform.translation.x - scaledSize.x >
-                (PTSD_Config::WINDOW_WIDTH >> 1) ||
-            transform.translation.x + scaledSize.x <
-                -static_cast<int>(PTSD_Config::WINDOW_WIDTH >> 1) ||
-            transform.translation.y - scaledSize.y >
-                (PTSD_Config::WINDOW_HEIGHT >> 1) ||
-            transform.translation.y + scaledSize.y <
-                -static_cast<int>(PTSD_Config::WINDOW_HEIGHT >> 1)) {
-            continue;
+        if (translation.x == 0 && translation.y == 0) {
+            curr.m_GameObject->Draw();
+        } else {
+            auto _translation = curr.m_GameObject->m_Transform.translation;
+            _translation += translation;
+            auto scaledSize = curr.m_GameObject->GetScaledSize() / 2.0f;
+            // check if object is out of screen
+            if (_translation.x - scaledSize.x >
+                    (PTSD_Config::WINDOW_WIDTH >> 1) ||
+                _translation.x + scaledSize.x <
+                    -static_cast<int>(PTSD_Config::WINDOW_WIDTH >> 1) ||
+                _translation.y - scaledSize.y >
+                    (PTSD_Config::WINDOW_HEIGHT >> 1) ||
+                _translation.y + scaledSize.y <
+                    -static_cast<int>(PTSD_Config::WINDOW_HEIGHT >> 1)) {
+                continue;
+            } else {
+                Util::Transform transform = {
+                    _translation, curr.m_GameObject->m_Transform.rotation,
+                    curr.m_GameObject->m_Transform.scale};
+                curr.m_GameObject->Draw(transform);
+            }
         }
-        curr.m_GameObject->Draw(transform);
     }
 }
 } // namespace Util
