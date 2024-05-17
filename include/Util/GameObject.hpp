@@ -152,6 +152,7 @@ public:
             m_Children.end());
     }
 
+    void Draw(Util::Transform &transform);
     void Draw();
 
 protected:
